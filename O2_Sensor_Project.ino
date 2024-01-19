@@ -57,28 +57,69 @@ byte sad[] = {
   B00000
 };
 
+PulseOximeter pox; //Define the oximeter object
+uint32_t tsLastReport = 0;
+
+void onBeatDetected(){
+  Serial.println("Beat!!!");
+}
+
 void setup() {
-  /*
-  // put your setup code here, to run once:
-  const int rs = 2,
-            en = 3,
-            d4 = 6,
-            d5 = 7,
-            d6 = 8,
-            d7 = 9;
   
-  LiquidCrystal lcd(rs, en, d4, d5 ,d6, d7);
-  */
-  Serial.begin(9600); // Generally you want the baud rate for all devices to be the same (parameter of the begin function)
+  Serial.begin(115200); // Generally you want the baud rate for all devices to be the same (parameter of the begin function)
   lcd.begin(16,2); // initializing the grid size of the lcd screens
-  lcd.createChar(0,bot);
-  lcd.clear();
+  lcd.createChar(1,smile);
+  lcd.createChar(2, mod);
+  lcd.createChar(3, sad);
+  lcd.setCursor(0, 0);
+  lcd.print("Pulse");
+  lcd.setCursor(0, 1);
+  lcd.print("Oximeter");
+  delay(2000);
+
+  //if-else statements to check if the initialization worked or not
+  if(!pox.begin()){
+    Serial.println("FAILED");
+    for(;;);
+  }
+  else{
+    Serial.println("SUCCESS");
+  }
+  pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+
+  pox.setOnBeatDetectedCallback(onBeatDetected);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  lcd.blink();
-  lcd.setCursor(0,0);
+  pox.update();
+  //if the interval between reports has been too long
+  if (millis() - tsLastReport > REPORTING_PERIOD_MS){
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("BPM : ");
+    lcd.print(pox.getHeartRate());
+    lcd.setCursor(0, 1);
+    lcd.print("SpO2: ");
+    lcd.print(pox.getSpO2());
+    lcd.print("%");
+    tsLastReport = millis();
+    //If O2 reading is 96 or above (which is normal)
+    if(pox.getSpO2() >= 96){
+      lcd.setCursor(15, 1);
+      lcd.write(1);
+    }
+    //If O2 reading is between 91 and 95 (a bit lower than normal)
+    else if (pox.getSpO2() <= 95 && pox.getSpO2() >= 91){
+      lcd.setCursor(15, 1);
+      lcd.write(2);
+    }
+    //If O2 reading is below 90 (which is bad, should seek medical help/attention)
+    else if (pox.getSpO2() <= 90){
+      lcd.setCursor(15, 1);
+      lcd.write(3);
+    }
+  }  
 
   // These 2 for loops scroll the text from the strings defined above from right to left, with the second string being printed on the second line//
   /**
@@ -135,8 +176,5 @@ void loop() {
   lcd.noDisplay(); turns off the lcd display without removing the text that is currently on the lcd
   lcd.display(); turns the display back on
   **/
-  lcd.noAutoscroll();
-  lcd.noBlink();
-  delay(3000);
-  lcd.clear();
+  
 }
