@@ -1,6 +1,10 @@
 #include <LiquidCrystal.h>
 #include <string.h>
+#include "MAX30100_PulseOximeter.h"
 
+#define REPORTING_PERIOD_MS 1000
+
+//These const ints define the pins that are being used between the arduino and the lcd screen
 const int rs = 2,
           en = 3,
           d4 = 6,
@@ -21,6 +25,36 @@ byte bot[8] = {
   0b00100,
   0b01010,
   0b10001
+};
+byte smile[] = {
+  B00000,
+  B00000,
+  B01010,
+  B00000,
+  B10001,
+  B01110,
+  B00000,
+  B00000
+};
+byte mod[] = {
+  B00000,
+  B00000,
+  B01010,
+  B00000,
+  B11111,
+  B00000,
+  B00000,
+  B00000
+};
+byte sad[] = {
+  B00000,
+  B00000,
+  B01010,
+  B00000,
+  B01110,
+  B10001,
+  B00000,
+  B00000
 };
 
 void setup() {
@@ -78,6 +112,7 @@ void loop() {
 
 
   //This section of the codes uses the byte pixel art defined above to draw the art in each index and then repeatedly draw it on all indices of the lcd screen using the nested for loop
+  /**
   lcd.setCursor(0, 0);
   lcd.write(byte(0));
   for(int col = 0; col < 2; col++){
@@ -87,6 +122,7 @@ void loop() {
       delay(100);
     }
   }
+  **/
   ////////////////
 
 
