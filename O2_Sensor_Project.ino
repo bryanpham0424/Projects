@@ -1,5 +1,6 @@
 #include <LiquidCrystal.h>
 #include <string.h>
+#include <Wire.h>
 #include "MAX30100_PulseOximeter.h"
 
 #define REPORTING_PERIOD_MS 1000
@@ -16,6 +17,7 @@ LiquidCrystal lcd(rs, en, d4, d5 ,d6, d7);
 String Hello = "Peace Be Upon You";
 String Hate = "Joe Mama, Got 'em";
 //The byte below represents one of indices of the lcd screen
+/**
 byte bot[8] = { 
   0b01110,
   0b01110,
@@ -26,6 +28,7 @@ byte bot[8] = {
   0b01010,
   0b10001
 };
+**/
 byte smile[] = {
   B00000,
   B00000,
@@ -60,6 +63,7 @@ byte sad[] = {
 PulseOximeter pox; //Define the oximeter object
 uint32_t tsLastReport = 0;
 
+
 void onBeatDetected(){
   Serial.println("Beat!!!");
 }
@@ -75,6 +79,7 @@ void setup() {
   lcd.print("Pulse");
   lcd.setCursor(0, 1);
   lcd.print("Oximeter");
+  Serial.println("test");
   delay(2000);
 
   //if-else statements to check if the initialization worked or not
@@ -92,6 +97,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  Serial.println("loop");
   pox.update();
   //if the interval between reports has been too long
   if (millis() - tsLastReport > REPORTING_PERIOD_MS){
